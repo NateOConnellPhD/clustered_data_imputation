@@ -1,8 +1,6 @@
 ## Load your packages, e.g. library(targets).
 source("R/functions.R")
 
-
-
 #Define Methods List of methods to run
 # Define a list of method functions
 methods_list <- list(
@@ -17,7 +15,26 @@ methods_list <- list(
   missranger = fit_missRanger
 )
 
-# Define Simulation dataset
+#Define Simulation dataset
+sims <- expand_grid(
+  meth = c(
+    'mixgb',
+    'jomo',
+    'merf',
+    'mice_freq',
+    'mice_bayes',
+    'mice_pmm',
+    'missforest',
+    'knn',
+    "missranger"
+  ),
+  n_sim = 1000,
+  n_subj = c(200, 500, 1000),
+  n_time = c(5),
+  missing_prob = c(.2, .4),
+  type=c("bin", "continuous")
+)
+
 # sims <- expand_grid(
 #   meth = c(
 #     'mixgb',
@@ -30,29 +47,19 @@ methods_list <- list(
 #     'knn',
 #     "missranger"
 #   ),
-#   n_sim = 1000,
-#   n_subj = c(200, 500, 1000),
+#   n_sim = 2,
+#   n_subj = c(500),
 #   n_time = c(5),
-#   missing_prob = c(.2, .4),
-#   type=c("bin", "continuous")
-# ) 
-
-sims <- expand_grid(
-  meth = c(
-    'mixgb'
-  ),
-  n_sim = 3,
-  n_subj = c(200, 500,1000),
-  n_time = c(5),
-  missing_prob = c(.2),
-  type=c("bin", "continuous")
-) 
+#   missing_prob = c(.2),
+#   type=c("bin")
+# )
 
 
-### Branch resources
-branch_resources <- tar_resources(
-  future = tar_resources_future(resources = list(n_cores=20))
-)
+# ## Branch resources
+# branch_resources <- tar_resources(
+#   future = tar_resources_future(resources = list(n_cores=20))
+# )
+
 
 #tar plan
 tar_plan(
@@ -69,7 +76,6 @@ tar_plan(
         type = type,
         meth = meth
       ),
-      resources=branch_resources,
       memory="transient",
       garbage_collection = T
     )
@@ -78,11 +84,36 @@ tar_plan(
 )
 
 
-# simulate(
-#   n_sim = sims$n_sim[1],
-#   n_subj = sims$n_subj[1],
-#   n_time = sims$n_time[1],
-#   missing_prob = sims$missing_prob[1],
-#   type = sims$type[1],
-#   meth = sims$meth[1]
+#tar_poll(interval = 5)  # Update every 5 seconds [1, 2, 3] 
+
+
+
+# with_progress({
+#   simulate(
+#     n_sim = 40,
+#     n_subj = sims$n_subj[4],
+#     n_time = sims$n_time[4],
+#     missing_prob = sims$missing_prob[4],
+#     type = "continuous",
+#     meth = "mixgb"
+#   )
+# })
+
+# 
+# simulate_old(
+  # n_sim = 5,
+  # n_subj = sims$n_subj[4],
+  # n_time = sims$n_time[4],
+  # missing_prob = sims$missing_prob[4],
+  # type ="continuous",
+  # meth = "mixgb"
 # )
+  # 
+  # n_sim = 5
+  # n_subj = sims$n_subj[4]
+  # n_time = sims$n_time[4]
+  # missing_prob = sims$missing_prob[4]
+  # type ="bin"
+  # meth = "jomo"
+
+  

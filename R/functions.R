@@ -1,4 +1,6 @@
 #Load Libraries
+packs = c("jomo", "mice", "miceadds", "micemd", "missForest", "VIM", "missRanger", "dplyr",
+          "naniar", "visdat", "lme4", "performance", "tidyr", "pROC", "mixgb", "NOmisc")
 library(jomo)
 library(mice)
 library(miceadds)
@@ -21,8 +23,10 @@ library(NOmisc)
 library(tarchetypes)
 library(targets)
 library(future)
-library(future.callr)
-plan(callr)
+library(parallel)
+library(furrr)
+library(pingr)
+library(progressr)
 
 #load missMERF 
 source("R/missMERF V1.R")
@@ -30,7 +34,7 @@ source("R/missMERF V1.R")
 # Function to evaluate imputation quality
 evaluate <- function(imputed_data, complete_data, method, time_taken) {
  
-  
+
   missing_vars <- c("X1", "X2", "X3", "B1", "B2", "B3")
   missing_vars_cont <- c("X1", "X2", "X3")
   missing_vars_bin <- c("B1", "B2", "B3")
@@ -67,7 +71,7 @@ evaluate <- function(imputed_data, complete_data, method, time_taken) {
     ))
     
     y_pred <- predict(model_impdata, type = "response", re.form = NULL, allow.new.levels = TRUE)
-    y_true <- as.numeric(imputed_data$Y) - 1
+    y_true <- as.numeric(imputed_data$Y) 
     
     model_mse <- mean((y_true - y_pred)^2)
     model_mae <- mean(abs(y_true - y_pred))
@@ -76,6 +80,7 @@ evaluate <- function(imputed_data, complete_data, method, time_taken) {
     model_auc <- as.numeric(pROC::roc(y_true, y_pred)$auc)
     
     # Complete Data Model (reuse glmer structure)
+    #complete_data$Y = complete_data$Y)
     model_complete <- suppressWarnings(glmer(
       Y ~ scale(age) + sex + race + scale(X1) + scale(X2) + scale(X3) + B1 + B2 + B3 + (1 | id),
       data = complete_data, family = binomial, control = ctrl
@@ -117,7 +122,7 @@ evaluate <- function(imputed_data, complete_data, method, time_taken) {
     
     # Define the formula once
     model_formula <- Y ~ age_s + sex + race + X1_s + X2_s + X3_s + B1 + B2 + B3 + (1 | id)
-    
+  
     # Fit models
     model_impdata <- lmer(model_formula, data = imputed_data)
     model_complete <- lmer(model_formula, data = complete_data)
@@ -159,7 +164,7 @@ evaluate <- function(imputed_data, complete_data, method, time_taken) {
 }
 
 # Generate Data Function 
-gen_data = function(n_subj, n_time, missing_prob, type="bin"){
+gen_data = function(n_subj, n_time, missing_prob, type){
   
   n_total  = n_subj * n_time
   
@@ -235,6 +240,8 @@ fit_mixgb = function(data){
   return(data_mixgb)
 }
 
+
+
 # jomo 
 fit_jomo = function(data){
   missing_vars <- c("X1", "X2", "X3", "B1", "B2", "B3")
@@ -248,9 +255,10 @@ fit_jomo = function(data){
   z <- cbind(reInt = rep(1,n_total))
   imp_jomo <- jomo(Y = data_impute_vars, X = data_complete_vars, Z=z, clus = data$id, nimp = 1, nbetween = 200, nburn = 3000, output=0)
   data_jomo_out <-  imp_jomo[imp_jomo$Imputation == 1, ]
-  data_jomo<- data.frame(as.numeric(data_jomo_out$clus),data_jomo_out$age,data_jomo_out$sex,data_jomo_out$race,
+  if(is_binary(data_jomo_out$Y)) data_jomo_out$Y = as.numeric(as.character(data_jomo_out$Y))-1
+  data_jomo <- data.frame(as.numeric(data_jomo_out$clus),data_jomo_out$age,data_jomo_out$sex,data_jomo_out$race,
                          data_jomo_out$X1,data_jomo_out$X2,data_jomo_out$X3,data_jomo_out$B1,data_jomo_out$B2,data_jomo_out$B3,
-                         as.factor(data_jomo_out$Y-1), data_jomo_out$JX1,data_jomo_out$JX2, as.factor(data_jomo_out$JB1-1), as.factor(data_jomo_out$JB2-1))
+                        data_jomo_out$Y, data_jomo_out$JX1,data_jomo_out$JX2, as.factor(data_jomo_out$JB1-1), as.factor(data_jomo_out$JB2-1))
   colnames(data_jomo)<-names(data)
   return(data_jomo)
 }
@@ -348,34 +356,120 @@ fit_model <- function(meth, data) {
 
 
 ### Simulate Function
-simulate = function(n_sim, n_subj, n_time, missing_prob, type, meth){
-  
-  # Preallocate list for simulation results
-  res <- vector("list", n_sim)
-  
-  # Run the simulation 'n_replications' times
-  for(i in 1:n_sim) {
-    set.seed(1000+i)
-    
-    # Generate Data
-    data = gen_data(n_subj, n_time, missing_prob, type = type)
-    
-    # Run Model 
-    t1 <- Sys.time()
-    df_out = fit_model(meth = meth, data = data$data)
-    t2 <- Sys.time()
-    
-    # Evaluate model 
-    res[[i]] <- evaluate(df_out, data$complete_data, meth, as.numeric(difftime(t2, t1, units = "secs")))
-    res[[i]]$type = type
-    res[[i]]$iter = i
-    res[[i]]$n_subj = n_subj
-    res[[i]]$miss_prob = missing_prob
+# simulate_old = function(n_sim, n_subj, n_time, missing_prob, type, meth){
+# 
+#   # Preallocate list for simulation results
+#   res <- vector("list", n_sim)
+# 
+#   # Run the simulation 'n_replications' times
+#   for(i in 1:n_sim) {
+#     set.seed(1000+i)
+# 
+#     # Generate Data
+#     data = gen_data(n_subj, n_time, missing_prob, type = type)
+# 
+#     # Run Model
+#     t1 <- Sys.time()
+#     df_out = fit_model(meth = meth, data = data$data)
+#     t2 <- Sys.time()
+# 
+#     # Evaluate model
+#     res[[i]] <- evaluate(df_out, data$complete_data, meth, as.numeric(difftime(t2, t1, units = "secs")))
+#     res[[i]]$type = type
+#     res[[i]]$iter = i
+#     res[[i]]$n_subj = n_subj
+#     res[[i]]$miss_prob = missing_prob
+# 
+#   }
+# 
+#   # Combine all results into a single data frame
+#   out = do.call(rbind, res)
+#   rownames(out) = NULL
+#   out
+# }
 
-  }
+# 
+# simulate <- function(n_sim, n_subj, n_time, missing_prob, type, meth) {
+#   # Load and set the future plan in the worker session.
+#   library(future)
+#   library(furrr)
+#   # Adjust 'workers' to the desired number of cores per target.
+#   future::plan(multisession, workers = 20)
+# 
+#   # Run the simulation n_sim times in parallel using future_map
+#   results <- future_map(1:n_sim, function(i) {
+#     source("R/missMERF V1.R")
+# 
+#     # Ensure reproducibility by setting the seed for each iteration
+#     set.seed(1000 + i)
+# 
+#     # Generate Data
+#     data <- gen_data(n_subj, n_time, missing_prob, type=type)
+# 
+#     # Run Model
+#     t1 <- Sys.time()
+#     df_out <- fit_model(meth = "jomo", data = data$data)
+#     t2 <- Sys.time()
+# 
+#     # Evaluate model
+#     res <- evaluate(df_out, data$complete_data, meth, as.numeric(difftime(t2, t1, units = "secs")))
+#     res$type <- type
+#     res$iter = i
+#     res$n_subj = n_subj
+#     res$miss_prob = missing_prob
+#     res
+#   }, .options = furrr_options(seed = TRUE,
+#                               globals=TRUE,
+#                               packages=packs))
+# 
+#   # Combine the results into one data frame
+#   out=do.call(rbind, results)
+#   rownames(out) = NULL
+#   out
+# }
+
+simulate <- function(n_sim, n_subj, n_time, missing_prob, type, meth) {
+  # Load and set the future plan in the worker session.
+  library(future)
+  library(furrr)
+  # Adjust 'workers' to the desired number of cores per target.
+  future::plan(multisession, workers = 20)
   
-  # Combine all results into a single data frame
-  out = do.call(rbind, res)
-  rownames(out) = NULL
+  # Create a progressor with the total number of steps.
+  p <- progressr::progressor(steps = n_sim)
+
+  # Run the simulation n_sim times in parallel using future_map
+  results <- furrr::future_map(1:n_sim, function(i) {
+    # Update the progress bar in each iteration.
+    p(sprintf("Iteration %d", i))
+
+    source("R/missMERF V1.R")
+
+    # Ensure reproducibility by setting the seed for each iteration.
+    set.seed(1000 + i)
+
+    # Generate Data.
+    data <- gen_data(n_subj, n_time, missing_prob, type = type)
+
+    # Run Model.
+    t1 <- Sys.time()
+    df_out <- fit_model(meth = meth, data = data$data)
+    t2 <- Sys.time()
+
+    # Evaluate model.
+    res <- evaluate(df_out, data$complete_data, meth, as.numeric(difftime(t2, t1, units = "secs")))
+    res$type <- type
+    res$iter <- i
+    res$n_subj <- n_subj
+    res$miss_prob <- missing_prob
+    res
+  }, .options = furrr::furrr_options(seed = TRUE,
+                                     globals = TRUE,
+                                     packages = packs))  # Ensure 'packs' is defined (a character vector of package names)
+
+  # Combine the results into one data frame.
+  out <- do.call(rbind, results)
+  rownames(out) <- NULL
   out
 }
+
