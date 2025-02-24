@@ -2,6 +2,7 @@
 #2/3/2025
 
 
+
 #pull helper functions
 
 #' Univariate Imputation
@@ -720,13 +721,19 @@ missMERF <- function(
 
 	  #run the mixed effects model with the predicted value from the random forest
 	  if (!is_char) { 
-		fit.mixedmodel <- lmer(imputed_var~pred.rf+(1|cluster_id),data=data1)
+		# fit.mixedmodel <- lmer(imputed_var~pred.rf+(1|cluster_id),data=data1,control = lmerControl(optimizer = "nloptwrap",
+		#                                                                                             optCtrl = list(maxfun = 200000)))
+		fit.mixedmodel <- glmmTMB(imputed_var ~ pred.rf + (1|cluster_id), 
+		                          data = data1, 
+		                          family = gaussian(),
+		                          control = glmmTMBControl(optCtrl = list(iter.max = 200000, eval.max = 200000)))
 	  	pred <- stats::predict(fit.mixedmodel,data1[v.na,],type="response",re.form=NULL,allow.new.levels=TRUE)
 	  	pred_xtrain <- stats::predict(fit.mixedmodel,data1[!v.na,],type="response",re.form=NULL,allow.new.levels=TRUE)
 	  }
 
 	  if (is_char) {
-		fit.mixedmodel <- glmer(imputed_var~pred.rf+(1|cluster_id),data=data1, binomial)
+		fit.mixedmodel <- glmer(imputed_var~pred.rf+(1|cluster_id),data=data1, binomial,  control = glmerControl(optimizer = "bobyqa",
+		                                                                                                         optCtrl = list(maxfun = 200000)))
 		pred <- stats::predict(fit.mixedmodel,data1[v.na,],type="response",re.form=NULL,allow.new.levels=TRUE)
 	  	pred_xtrain <- stats::predict(fit.mixedmodel,data1[!v.na,],type="response",re.form=NULL,allow.new.levels=TRUE)
 	  }
@@ -827,22 +834,6 @@ missMERF <- function(
   
   return(out)
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 # HELPER FUNCTIONS
