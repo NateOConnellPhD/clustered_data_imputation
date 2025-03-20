@@ -1,39 +1,28 @@
 #Run Targets (callr_function==NULL required to run parallell within the simulation loop for a target)
-tar_make(callr_function = NULL, reporter="summary")
+#tar_make(callr_function = NULL, reporter="summary")
+
+#Load functions
+lapply(list.files("R/", pattern = "\\.R$", full.names = TRUE), source)
 
 #Load targets
 tar_load("sims_comb")
-sims_comb
 
 
 
-# with_progress({
-#   simulate(
-#     n_sim = 40,
-#     n_subj = sims$n_subj[4],
-#     n_time = sims$n_time[4],
-#     missing_prob = sims$missing_prob[4],
-#     type = "continuous",
-#     meth = "mixgb"
-#   )
-# })
-
-# 
-# simulate_old(
-# n_sim = 5,
-# n_subj = sims$n_subj[4],
-# n_time = sims$n_time[4],
-# missing_prob = sims$missing_prob[4],
-# type ="continuous",
-# meth = "mixgb"
-# )
-# 
-# n_sim = 5
-# n_subj = sims$n_subj[4]
-# n_time = sims$n_time[4]
-# missing_prob = sims$missing_prob[4]
-# type ="bin"
-# meth = "jomo"
+# Summarize results
+summary_results <- sims_comb %>%
+  group_by(method, type, n_subj, miss_prob) %>%
+  summarise(across(everything(), mean, na.rm = TRUE))
 
 
+summary_results1 <- sims_comb %>%
+  group_by(method, type, n_subj, miss_prob) %>%
+  summarise(across(everything(), sd, na.rm = TRUE))
+
+
+# Convert data from wide to long format
+df_long <- sims_comb %>%
+  pivot_longer(cols = -c(method, type, n_subj, miss_prob), names_to = "metric", values_to = "value")
+
+plot_metrics(df_long, metric_set=1, type="bin", n_subj=200, miss_prob = .2)
 
