@@ -1,11 +1,9 @@
 # Function to evaluate imputation quality
 evaluate <- function(imputed_data, complete_data, method, time_taken) {
   
-  
   missing_vars <- c("X1", "X2", "X3", "B1", "B2", "B3")
   missing_vars_cont <- c("X1", "X2", "X3")
   missing_vars_bin <- c("B1", "B2", "B3")
-  
   
   # MSE, MAE, and Bias
   sse <- (imputed_data[missing_vars_cont] - complete_data[missing_vars_cont])^2
@@ -30,7 +28,7 @@ evaluate <- function(imputed_data, complete_data, method, time_taken) {
   if(is_binary(complete_data$Y)){
     # Control for glmer to improve speed
     ctrl <- glmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 10000))
-    
+
     # Model on Imputed Data
     model_impdata <- suppressWarnings(glmer(
       Y ~ scale(age) + sex + race + scale(X1) + scale(X2) + scale(X3) + B1 + B2 + B3 + (1 | id),
@@ -38,8 +36,13 @@ evaluate <- function(imputed_data, complete_data, method, time_taken) {
     ))
     
     y_pred <- predict(model_impdata, type = "response", re.form = NULL, allow.new.levels = TRUE)
-    y_true <- as.numeric(imputed_data$Y) 
     
+    if(is.numeric(imputed_data$Y)==F){
+      y_true  = as.numeric(as.character(imputed_data$Y))
+    } else{
+      y_true <- imputed_data$Y
+    }
+   
     model_mse <- mean((y_true - y_pred)^2)
     model_mae <- mean(abs(y_true - y_pred))
     model_bias <- mean(y_true - y_pred)

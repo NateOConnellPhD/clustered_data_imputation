@@ -10,14 +10,14 @@ plot_metrics <- function(df_long, metric_set=1, type="bin", n_subj=200, miss_pro
   # Define metric sets
   metrics_list <- list(
     "bin" = list(
-      c("mse", "mae", "bias", "pfc", "time"),
-      c("model_mse", "model_mae", "model_bias", "model_aic", "model_auc"),
-      c("diff_mse", "diff_mae", "diff_bias", "diff_aic", "diff_auc")
+      c("mse",  "bias", "pfc", "time"),
+      c("model_mse", "model_bias", "model_aic", "model_auc"),
+      c("diff_mse",  "diff_bias", "diff_aic", "diff_auc")
     ),
     "continuous" = list(
-      c("mse", "mae", "bias", "pfc", "time"),
-      c("model_mse", "model_mae", "model_bias", "model_aic", "model_r2"),
-      c("diff_mse", "diff_mae", "diff_bias", "diff_aic", "diff_r2")
+      c("mse",  "bias", "pfc", "time"),
+      c("model_mse", "model_bias", "model_aic", "model_r2"),
+      c("diff_mse",  "diff_bias", "diff_aic", "diff_r2")
     )
   )
   
@@ -47,10 +47,17 @@ plot_metrics <- function(df_long, metric_set=1, type="bin", n_subj=200, miss_pro
     labs(title = paste("Metrics for", type_name, "Data (n =", n_subj, ", missing prob =", miss_prob, ")"),
          x = "Imputation Method",
          y = "Value") +
-    theme_minimal() +
+    #theme_minimal() +
     theme(axis.text.x = element_text(angle = 45, hjust = 1), 
           legend.position = "none", 
-          strip.text = element_text(face = "bold"))
+          strip.text = element_text(face = "bold"))+
+    theme(
+      panel.grid.major = element_line(color = "grey80"),
+      panel.grid.minor = element_line(color = "grey90"),
+      axis.text.x = element_text(angle = 45, hjust = 1),
+      legend.position = "none",
+      strip.text = element_text(face = "bold")
+    )
   
   return(plot)
 }

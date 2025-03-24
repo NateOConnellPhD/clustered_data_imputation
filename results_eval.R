@@ -1,12 +1,12 @@
 #Run Targets (callr_function==NULL required to run parallell within the simulation loop for a target)
-#tar_make(callr_function = NULL, reporter="summary")
+tar_make(callr_function = NULL, reporter="summary")
 
 #Load functions
 lapply(list.files("R/", pattern = "\\.R$", full.names = TRUE), source)
 
 #Load targets
 tar_load("sims_comb")
-
+tar_load("sims_100_comb")
 
 
 # Summarize results
@@ -24,5 +24,8 @@ summary_results1 <- sims_comb %>%
 df_long <- sims_comb %>%
   pivot_longer(cols = -c(method, type, n_subj, miss_prob), names_to = "metric", values_to = "value")
 
-plot_metrics(df_long, metric_set=1, type="bin", n_subj=200, miss_prob = .2)
 
+
+plot_metrics(df_long, metric_set=2, type="bin", n_subj=200, miss_prob = .2)
+
+plot_metrics(df_long, metric_set=1, type="bin", n_subj=200, miss_prob = .4)

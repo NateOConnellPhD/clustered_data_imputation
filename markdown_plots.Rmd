@@ -1,0 +1,360 @@
+---
+title: "Plots"
+author: "Nathaniel O'Connell, PhD"
+date: "2025-03-20"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+#Load functions
+lapply(list.files("R/", pattern = "\\.R$", full.names = TRUE), source)
+
+
+#Load targets
+tar_load("sims_50_comb")
+
+
+sims_comb = sims_50_comb
+
+# Summarize results
+summary_results <- sims_comb %>%
+  group_by(method, type, n_subj, miss_prob) %>%
+  summarise(across(everything(), mean, na.rm = TRUE))
+
+
+summary_results1 <- sims_comb %>%
+  group_by(method, type, n_subj, miss_prob) %>%
+  summarise(across(everything(), sd, na.rm = TRUE))
+
+
+# Convert data from wide to long format
+df_long <- sims_comb %>%
+  pivot_longer(cols = -c(method, type, n_subj, miss_prob), names_to = "metric", values_to = "value")
+
+
+```
+
+The goal of this project is to compare methods for imputing missing data, specifically in the case of clustered data. Data were simulated for both binary and continuous outcomes, in sample sizes of 200, 500 or 1000, and with either 20% or 40% missingness. Methods of imputation were compared for each scenario in terms of relevant model fit statistics, bias, and computation time. The results are as follows:
+
+# Binary Outcome
+
+### 200 subjects w/ 20% Missing Data
+
+```{r out1, echo=F, fig.width=10, fig.height=10}
+plot_metrics(df_long, metric_set=1, type="bin", n_subj=200, miss_prob = .2)
+```
+
+<!-- <br/> -->
+
+<!-- ```{r out2, echo=F, fig.width=12, fig.height=12} -->
+<!-- plot_metrics(df_long, metric_set=2, type="bin", n_subj=200, miss_prob = .2) -->
+<!-- ``` -->
+
+
+<br/>
+<br/>
+<br/>
+
+```{r out3, echo=F, fig.width=12, fig.height=12}
+plot_metrics(df_long, metric_set=3, type="bin", n_subj=200, miss_prob = .2)
+```
+
+<br/>
+<br/>
+---
+
+### 200 subjects w/ 40% Missing Data
+
+```{r out4, echo=F, fig.width=12, fig.height=12}
+plot_metrics(df_long, metric_set=1, type="bin", n_subj=200, miss_prob = .4)
+```
+
+<!-- <br/> -->
+
+<!-- ```{r out5, echo=F, fig.width=12, fig.height=12} -->
+<!-- plot_metrics(df_long, metric_set=2, type="bin", n_subj=200, miss_prob = .4) -->
+<!-- ``` -->
+
+
+
+<br/>
+<br/>
+<br/>
+
+```{r out6, echo=F, fig.width=12, fig.height=12}
+plot_metrics(df_long, metric_set=3, type="bin", n_subj=200, miss_prob = .4)
+```
+
+
+<br/>
+<br/>
+---
+
+### 500 subjects w/ 20% Missing Data
+
+```{r out7, echo=F, fig.width=12, fig.height=12}
+plot_metrics(df_long, metric_set=1, type="bin", n_subj=500, miss_prob = .2)
+```
+
+<!-- <br/> -->
+
+<!-- ```{r out8, echo=F, fig.width=12, fig.height=12} -->
+<!-- plot_metrics(df_long, metric_set=2, type="bin", n_subj=500, miss_prob = .2) -->
+<!-- ``` -->
+
+
+
+<br/>
+<br/>
+<br/>
+
+```{r out9, echo=F, fig.width=12, fig.height=12}
+plot_metrics(df_long, metric_set=3, type="bin", n_subj=500, miss_prob = .2)
+```
+
+
+<br/>
+<br/>
+---
+
+### 500 subjects w/ 40% Missing Data
+
+```{r out10, echo=F, fig.width=12, fig.height=12}
+plot_metrics(df_long, metric_set=1, type="bin", n_subj=500, miss_prob = .4)
+```
+
+<!-- <br/> -->
+
+<!-- ```{r out11, echo=F, fig.width=12, fig.height=12} -->
+<!-- plot_metrics(df_long, metric_set=2, type="bin", n_subj=500, miss_prob = .4) -->
+<!-- ``` -->
+
+
+
+<br/>
+<br/>
+<br/>
+
+```{r out12, echo=F, fig.width=12, fig.height=12}
+plot_metrics(df_long, metric_set=3, type="bin", n_subj=500, miss_prob = .4)
+```
+
+
+<br/>
+<br/>
+---
+
+### 1000 subjects w/ 20% Missing Data
+
+```{r out13, echo=F, fig.width=12, fig.height=12}
+plot_metrics(df_long, metric_set=1, type="bin", n_subj=1000, miss_prob = .2)
+```
+
+<!-- <br/> -->
+
+<!-- ```{r out14, echo=F, fig.width=12, fig.height=12} -->
+<!-- plot_metrics(df_long, metric_set=2, type="bin", n_subj=1000, miss_prob = .2) -->
+<!-- ``` -->
+
+
+
+<br/>
+<br/>
+<br/>
+
+```{r out15, echo=F, fig.width=12, fig.height=12}
+plot_metrics(df_long, metric_set=3, type="bin", n_subj=1000, miss_prob = .2)
+```
+
+<br/>
+<br/>
+---
+
+### 1000 subjects w/ 40% Missing Data
+
+```{r out16, echo=F, fig.width=12, fig.height=12}
+plot_metrics(df_long, metric_set=1, type="bin", n_subj=1000, miss_prob = .4)
+```
+
+<!-- <br/> -->
+
+<!-- ```{r out17, echo=F, fig.width=12, fig.height=12} -->
+<!-- plot_metrics(df_long, metric_set=2, type="bin", n_subj=1000, miss_prob = .4) -->
+<!-- ``` -->
+
+
+<br/>
+<br/>
+<br/>
+
+```{r out18, echo=F, fig.width=12, fig.height=12}
+plot_metrics(df_long, metric_set=3, type="bin", n_subj=1000, miss_prob = .4)
+```
+
+___
+
+
+<br/>
+<br/>
+<br/>
+
+# Continuous Data
+
+### 200 subjects w/ 20% Missing Data
+
+```{r out19, echo=F, fig.width=12, fig.height=12}
+plot_metrics(df_long, metric_set=1, type="continuous", n_subj=200, miss_prob = .2)
+```
+
+<!-- <br/> -->
+
+<!-- ```{r out20, echo=F, fig.width=12, fig.height=12} -->
+<!-- plot_metrics(df_long, metric_set=2, type="continuous", n_subj=200, miss_prob = .2) -->
+<!-- ``` -->
+
+
+
+<br/>
+<br/>
+<br/>
+
+```{r out21, echo=F, fig.width=12, fig.height=12}
+plot_metrics(df_long, metric_set=3, type="continuous", n_subj=200, miss_prob = .2)
+```
+
+
+<br/>
+<br/>
+---
+
+### 200 subjects w/ 40% Missing Data
+
+```{r out22, echo=F, fig.width=12, fig.height=12}
+plot_metrics(df_long, metric_set=1, type="continuous", n_subj=200, miss_prob = .4)
+```
+
+<!-- <br/> -->
+
+<!-- ```{r out23, echo=F, fig.width=12, fig.height=12} -->
+<!-- plot_metrics(df_long, metric_set=2, type="continuous", n_subj=200, miss_prob = .4) -->
+<!-- ``` -->
+
+
+
+<br/>
+<br/>
+<br/>
+
+```{r out24, echo=F, fig.width=12, fig.height=12}
+plot_metrics(df_long, metric_set=3, type="continuous", n_subj=200, miss_prob = .4)
+```
+
+
+<br/>
+<br/>
+---
+
+### 500 subjects w/ 20% Missing Data
+
+```{r out25, echo=F, fig.width=12, fig.height=12}
+plot_metrics(df_long, metric_set=1, type="continuous", n_subj=500, miss_prob = .2)
+```
+
+<!-- <br/> -->
+
+<!-- ```{r out26, echo=F, fig.width=12, fig.height=12} -->
+<!-- plot_metrics(df_long, metric_set=2, type="continuous", n_subj=500, miss_prob = .2) -->
+<!-- ``` -->
+
+
+
+
+<br/>
+<br/>
+<br/>
+
+```{r out27, echo=F, fig.width=12, fig.height=12}
+plot_metrics(df_long, metric_set=3, type="continuous", n_subj=500, miss_prob = .2)
+```
+
+
+<br/>
+<br/>
+---
+
+### 500 subjects w/ 40% Missing Data
+
+```{r out28, echo=F, fig.width=12, fig.height=12}
+plot_metrics(df_long, metric_set=1, type="continuous", n_subj=500, miss_prob = .4)
+```
+
+<!-- <br/> -->
+
+<!-- ```{r out29, echo=F, fig.width=12, fig.height=12} -->
+<!-- plot_metrics(df_long, metric_set=2, type="continuous", n_subj=500, miss_prob = .4) -->
+<!-- ``` -->
+
+
+
+<br/>
+<br/>
+<br/>
+```{r out30, echo=F, fig.width=12, fig.height=12}
+plot_metrics(df_long, metric_set=3, type="continuous", n_subj=500, miss_prob = .4)
+```
+
+
+<br/>
+<br/>
+---
+
+### 1000 subjects w/ 20% Missing Data
+
+```{r out31, echo=F, fig.width=12, fig.height=12}
+plot_metrics(df_long, metric_set=1, type="continuous", n_subj=1000, miss_prob = .2)
+```
+
+<!-- <br/> -->
+
+<!-- ```{r out32, echo=F, fig.width=12, fig.height=12} -->
+<!-- plot_metrics(df_long, metric_set=2, type="continuous", n_subj=1000, miss_prob = .2) -->
+<!-- ``` -->
+
+
+<br/>
+<br/>
+<br/>
+
+```{r out33, echo=F, fig.width=12, fig.height=12}
+plot_metrics(df_long, metric_set=3, type="continuous", n_subj=1000, miss_prob = .2)
+```
+
+
+<br/>
+<br/>
+---
+
+### 1000 subjects w/ 40% Missing Data
+
+```{r out34, echo=F, fig.width=12, fig.height=12}
+plot_metrics(df_long, metric_set=1, type="continuous", n_subj=1000, miss_prob = .4)
+```
+
+<!-- <br/> -->
+
+<!-- ```{r out35, echo=F, fig.width=12, fig.height=12} -->
+<!-- plot_metrics(df_long, metric_set=2, type="continuous", n_subj=1000, miss_prob = .4) -->
+<!-- ``` -->
+
+
+
+<br/>
+<br/>
+<br/>
+
+```{r out36, echo=F, fig.width=12, fig.height=12}
+plot_metrics(df_long, metric_set=3, type="continuous", n_subj=1000, miss_prob = .4)
+```
+
