@@ -6,7 +6,6 @@ lapply(list.files("R/", pattern = "\\.R$", full.names = TRUE), source)
 
 #Load targets
 tar_load("sims_comb")
-tar_load("sims_100_comb")
 
 
 # Summarize results
