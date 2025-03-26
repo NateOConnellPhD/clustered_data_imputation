@@ -23,7 +23,9 @@ bias, and computation time. The results are as follows:
 
 ![](README_files/figure-gfm/out3-1.png)<!-- -->
 
-<br/> <br/> —
+<br/> <br/>
+
+------------------------------------------------------------------------
 
 ### 200 subjects w/ 40% Missing Data
 
@@ -38,7 +40,9 @@ bias, and computation time. The results are as follows:
 
 ![](README_files/figure-gfm/out6-1.png)<!-- -->
 
-<br/> <br/> —
+<br/> <br/>
+
+------------------------------------------------------------------------
 
 ### 500 subjects w/ 20% Missing Data
 
@@ -53,7 +57,9 @@ bias, and computation time. The results are as follows:
 
 ![](README_files/figure-gfm/out9-1.png)<!-- -->
 
-<br/> <br/> —
+<br/> <br/>
+
+------------------------------------------------------------------------
 
 ### 500 subjects w/ 40% Missing Data
 
@@ -68,7 +74,9 @@ bias, and computation time. The results are as follows:
 
 ![](README_files/figure-gfm/out12-1.png)<!-- -->
 
-<br/> <br/> —
+<br/> <br/>
+
+------------------------------------------------------------------------
 
 ### 1000 subjects w/ 20% Missing Data
 
@@ -83,7 +91,9 @@ bias, and computation time. The results are as follows:
 
 ![](README_files/figure-gfm/out15-1.png)<!-- -->
 
-<br/> <br/> —
+<br/> <br/>
+
+------------------------------------------------------------------------
 
 ### 1000 subjects w/ 40% Missing Data
 
@@ -98,9 +108,11 @@ bias, and computation time. The results are as follows:
 
 ![](README_files/figure-gfm/out18-1.png)<!-- -->
 
+<br/> <br/> <br/>
+
 ------------------------------------------------------------------------
 
-<br/> <br/> <br/>
+------------------------------------------------------------------------
 
 # Continuous Data
 
@@ -117,7 +129,9 @@ bias, and computation time. The results are as follows:
 
 ![](README_files/figure-gfm/out21-1.png)<!-- -->
 
-<br/> <br/> —
+<br/> <br/>
+
+------------------------------------------------------------------------
 
 ### 200 subjects w/ 40% Missing Data
 
@@ -132,7 +146,9 @@ bias, and computation time. The results are as follows:
 
 ![](README_files/figure-gfm/out24-1.png)<!-- -->
 
-<br/> <br/> —
+<br/> <br/>
+
+------------------------------------------------------------------------
 
 ### 500 subjects w/ 20% Missing Data
 
@@ -147,7 +163,9 @@ bias, and computation time. The results are as follows:
 
 ![](README_files/figure-gfm/out27-1.png)<!-- -->
 
-<br/> <br/> —
+<br/> <br/>
+
+------------------------------------------------------------------------
 
 ### 500 subjects w/ 40% Missing Data
 
@@ -160,7 +178,9 @@ bias, and computation time. The results are as follows:
 
 <br/> <br/> <br/> ![](README_files/figure-gfm/out30-1.png)<!-- -->
 
-<br/> <br/> —
+<br/> <br/>
+
+------------------------------------------------------------------------
 
 ### 1000 subjects w/ 20% Missing Data
 
@@ -175,7 +195,9 @@ bias, and computation time. The results are as follows:
 
 ![](README_files/figure-gfm/out33-1.png)<!-- -->
 
-<br/> <br/> —
+<br/> <br/>
+
+------------------------------------------------------------------------
 
 ### 1000 subjects w/ 40% Missing Data
 
@@ -186,9 +208,15 @@ bias, and computation time. The results are as follows:
 <!-- plot_metrics(df_long, metric_set=2, type="continuous", n_subj=1000, miss_prob = .4) -->
 <!-- ``` -->
 
-<br/> <br/> <br/>
+<br/> <br/>
 
 ![](README_files/figure-gfm/out36-1.png)<!-- -->
+
+<br/> <br/> <br/>
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
 
 # Tables
 
