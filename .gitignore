@@ -2,6 +2,6 @@
 .Rhistory
 .RData
 .Ruserdata
-original_code\
-_targets\objects_olds
-_targets\objects_olds2
+/original_code
+/_targets/objects_olds
+/_targets/objects_olds2
