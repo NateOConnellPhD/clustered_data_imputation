@@ -13,10 +13,7 @@ lapply(list.files("R/", pattern = "\\.R$", full.names = TRUE), source)
 
 
 #Load targets
-tar_load("sims_50_comb")
-
-
-sims_comb = sims_50_comb
+tar_load("sims_comb")
 
 # Summarize results
 summary_results <- sims_comb %>%
@@ -358,3 +355,58 @@ plot_metrics(df_long, metric_set=1, type="continuous", n_subj=1000, miss_prob = 
 plot_metrics(df_long, metric_set=3, type="continuous", n_subj=1000, miss_prob = .4)
 ```
 
+# Tables
+```{r tab1, echo=F}
+# Tabulate Metrics
+tab_metrics(sims_comb, c("mse", "mae", "bias", "pfc"), list(type=c("bin"),
+                                                           n_subj=c("200", "500", "1000"),
+                                                           miss_prob = c("0.2", "0.4")))
+
+
+
+                  
+```
+
+
+<br/>
+<br/>
+<br/>
+
+```{r tab2, echo=F}
+# Tabulate Metrics
+
+
+tab_metrics(sims_comb, c("mse", "mae", "bias", "pfc"), list(type=c("continuous"),
+                                                            n_subj=c("200", "500", "1000"),
+                                                            miss_prob = c("0.2", "0.4")))
+
+                  
+```
+<br/>
+<br/>
+<br/>
+
+
+```{r tab3, echo=F}
+
+
+tab_metrics(sims_comb, c("diff_mse", "diff_mae", "diff_bias", "diff_aic",  "diff_auc"), list(type=c("bin"),
+                                                            n_subj=c("200", "500", "1000"),
+                                                            miss_prob = c("0.2", "0.4")))
+
+
+                  
+```
+<br/>
+<br/>
+<br/>
+
+```{r tab4, echo=F}
+
+
+tab_metrics(sims_comb, c("diff_mse", "diff_mae", "diff_bias", "diff_aic", "diff_r2"), list(type=c("continuous"),
+                                                                                                       n_subj=c("200", "500", "1000"),
+                                                                                                       miss_prob = c("0.2", "0.4")))
+
+                  
+```
